@@ -1,12 +1,8 @@
-﻿namespace steeltoe.data.showcase.Domain
+﻿namespace steeltoe.data.showcase.Domain;
+
+public class Account
 {
-    public class Account
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string Data { get; set; }
-
-        
-    }
-
+    public string? Data { get; set; }
 }

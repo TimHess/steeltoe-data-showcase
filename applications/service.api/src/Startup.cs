@@ -8,48 +8,47 @@ using Microsoft.OpenApi.Models;
 using Steeltoe.Connector.PostgreSql.EFCore;
 using Steeltoe.Extensions.Configuration.Placeholder;
 
-namespace steeltoe.data.showcase
+namespace steeltoe.data.showcase;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
+        Configuration = configuration;
+        Configuration.AddPlaceholderResolver();
+    }
+
+    public IConfiguration Configuration { get; }
+
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<SampleContext>(options => options.UseNpgsql(Configuration));
+        services.AddScoped<ITestDataRepository,TestDataRepository>();
+        services.AddControllers();
+        services.AddSwaggerGen(c =>
         {
-            Configuration = configuration;
-            Configuration.AddPlaceholderResolver();
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "steeltoe.data.showcase", Version = "v1" });
+        });
+    }
+
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "steeltoe.data.showcase"));
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        app.UseHttpsRedirection();
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
         {
-            services.AddDbContext<SampleContext>(options => options.UseNpgsql(Configuration));
-            services.AddScoped<ITestDataRepository,TestDataRepository>();
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "steeltoe.data.showcase", Version = "v1" });
-            });
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "steeltoe.data.showcase"));
-            }
-
-            app.UseHttpsRedirection();
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+            endpoints.MapControllers();
+        });
     }
 }

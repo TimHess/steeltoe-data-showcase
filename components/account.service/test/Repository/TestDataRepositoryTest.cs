@@ -3,84 +3,82 @@ using steeltoe.data.showcase.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace steeltoe.data.showcase.test.Repository
-{
-    [TestClass]
-    public class TestDataRepositoryTest
-    {
-        private SampleContext dbContext;
-        private TestDataRepository subject;
-        // private Moq.EntityFrameworkCore.<SampleContext> dbContext;
-        private DbContextOptions options;
-        private Account testData;
+namespace steeltoe.data.showcase.test.Repository;
 
-        [TestInitialize]
-        public void InitializeTestDataEfcRepositoryTest()
-        {
-             options =  new DbContextOptionsBuilder<SampleContext>()
+[TestClass]
+public class TestDataRepositoryTest
+{
+    private SampleContext dbContext;
+    private TestDataRepository subject;
+    // private Moq.EntityFrameworkCore.<SampleContext> dbContext;
+    private DbContextOptions options;
+    private Account testData;
+
+    [TestInitialize]
+    public void InitializeTestDataEfcRepositoryTest()
+    {
+        options =  new DbContextOptionsBuilder<SampleContext>()
             .UseInMemoryDatabase(databaseName: "SampleDatabase")
             .Options;
 
-            dbContext = new SampleContext(options);
+        dbContext = new SampleContext(options);
 
-            subject = new TestDataRepository(dbContext);
+        subject = new TestDataRepository(dbContext);
 
-            testData = new Account();
-        }
+        testData = new Account();
+    }
 
-        [TestMethod]
-        public void TestSaveData()
-        {
-            subject.Save(testData);
-            var actual = subject.FindById(testData.Id);
+    [TestMethod]
+    public void TestSaveData()
+    {
+        subject.Save(testData);
+        var actual = subject.FindById(testData.Id);
 
-            Assert.AreEqual(testData.Id, actual.Id);
-        }
+        Assert.AreEqual(testData.Id, actual.Id);
+    }
 
-         [TestMethod]
-        public void UpdateData()
-        {
-            var testDataUpdate = new Account();
-            testData.Id = 2;
-            testData.Data = "test update";
+    [TestMethod]
+    public void UpdateData()
+    {
+        var testDataUpdate = new Account();
+        testData.Id = 2;
+        testData.Data = "test update";
 
-            subject.Save(testData);
+        subject.Save(testData);
 
-            subject.Save(testData);
-        }
+        subject.Save(testData);
+    }
 
-        [TestMethod]
-        public void TestDelete()
-        {
+    [TestMethod]
+    public void TestDelete()
+    {
 
-            var testDataUpdate = new Account();
-            testData.Id = 3;
-            testData.Data = "test update";
+        var testDataUpdate = new Account();
+        testData.Id = 3;
+        testData.Data = "test update";
 
-            subject.Save(testData);
+        subject.Save(testData);
 
-             var actual = subject.FindById(testData.Id);
+        var actual = subject.FindById(testData.Id);
 
-            Assert.AreEqual(testData.Id, actual.Id);
+        Assert.AreEqual(testData.Id, actual.Id);
 
-            subject.DeleteById(testData.Id);
+        subject.DeleteById(testData.Id);
 
-            Assert.IsNull(subject.FindById(testData.Id));
-        }
+        Assert.IsNull(subject.FindById(testData.Id));
+    }
 
-         [TestMethod]
-        public void TestFindAll()
-        {
+    [TestMethod]
+    public void TestFindAll()
+    {
+        var testDataUpdate = new Account();
+        testData.Id = 4;
+        testData.Data = "test update";
 
-            var testDataUpdate = new Account();
-            testData.Id = 4;
-            testData.Data = "test update";
+        subject.Save(testData);
 
-            subject.Save(testData);
+        var actual = subject.FindAll();
 
-             var actual = subject.FindAll();
-
-            Assert.IsNotNull(actual);
-        }
+        Assert.IsNotNull(actual);
     }
 }

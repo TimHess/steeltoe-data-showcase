@@ -3,51 +3,50 @@ using System.Linq;
 using steeltoe.data.showcase.Domain;
 using Imani.Solutions.Core.API.Util;
 
-namespace steeltoe.data.showcase.Repository
+namespace steeltoe.data.showcase.Repository;
+
+public class TestDataRepository : ITestDataRepository
 {
-    public class TestDataRepository : ITestDataRepository
+    private SampleContext dbContext;
+    private readonly int findAllLimit = new ConfigSettings().GetPropertyInteger("findAllLimit",1000);
+
+    public TestDataRepository(SampleContext dbContext)
     {
-        private SampleContext dbContext;
-        private readonly int findAllLimit = new ConfigSettings().GetPropertyInteger("findAllLimit",1000);
+        this.dbContext = dbContext;
+    }
 
-        public TestDataRepository(SampleContext dbContext)
-        {
-            this.dbContext = dbContext;
-        }
+    public void Save(Account testData)
+    {
+        var updateData = FindById(testData.Id);
 
-        public void Save(Account testData)
-        {
-            var updateData = FindById(testData.Id);
+        if(updateData == null)
+            dbContext.Add(testData);
+        else
+            updateData.Data = testData.Data;
 
-            if(updateData == null)
-                dbContext.Add(testData);
-            else
-                updateData.Data = testData.Data;
+        dbContext.SaveChanges();
+    }
 
-            dbContext.SaveChanges();
-        }
+    public Account FindById(int id)
+    {
+        return dbContext.Find<Account>(id);
+    }
 
-        public Account FindById(int id)
-        {
-            return dbContext.Find<Account>(id);
-        }
+    public void DeleteById(int keyId)
+    {
+        var deleteRecord = FindById(keyId);
+        if(deleteRecord == null)
+            return;
 
-        public void DeleteById(int keyId)
-        {
-            var deleteRecord = FindById(keyId);
-            if(deleteRecord == null)
-                return;
+        dbContext.Remove(deleteRecord);
+        dbContext.SaveChanges();
+    }
 
-            dbContext.Remove(deleteRecord);
-            dbContext.SaveChanges();
-        }
-
-        public List<Account> FindAll()
-        {
-           return  dbContext.Account.Select(x => x)
-           .OrderBy( x => x.Id)
-           .Take(findAllLimit)
-           .ToList();
-        }
+    public List<Account> FindAll()
+    {
+        return  dbContext.Account.Select(x => x)
+            .OrderBy( x => x.Id)
+            .Take(findAllLimit)
+            .ToList();
     }
 }

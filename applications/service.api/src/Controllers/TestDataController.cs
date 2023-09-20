@@ -3,44 +3,42 @@ using steeltoe.data.showcase.Domain;
 using steeltoe.data.showcase.Repository;
 using Microsoft.AspNetCore.Mvc;
 
-namespace steeltoe.data.showcase.Controllers
+namespace steeltoe.data.showcase.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class TestDataController
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class TestDataController
+    private readonly ITestDataRepository repository;
+
+    public TestDataController(ITestDataRepository repository)
     {
-        private ITestDataRepository repository;
+        this.repository = repository;
+    }
 
-        public TestDataController(ITestDataRepository repository)
-        {
-            this.repository = repository;
-        }
+    [HttpPost]
+    public void PostData(Account testData)
+    {
+        repository.Save(testData);
+    }
 
-        [HttpPost]
-        public void PostData(Account testData)
-        {
-            this.repository.Save(testData);
-        }
+    [HttpGet]
+    [Route("{id}")]
+    public Account FindById(int id)
+    {
+        return repository.FindById(id);
+    }
 
-        [HttpGet]
-          [Route("{id}")] 
-        public Account FindById(int id)
-        {
-            
-            return this.repository.FindById(id);
-        }
+    [HttpGet]
+    public List<Account> FindAll()
+    {
+        return repository.FindAll();
+    }
 
-       [HttpGet]
-        public List<Account> FindAll()
-        {
-            return this.repository.FindAll();
-        }
-
-        [HttpDelete]
-         [Route("{id}")] 
-        public void DeleteById(int id)
-        {
-            this.repository.DeleteById(id);
-        }
+    [HttpDelete]
+    [Route("{id}")]
+    public void DeleteById(int id)
+    {
+        repository.DeleteById(id);
     }
 }
